@@ -1,0 +1,12 @@
+syntax = "proto3";
+
+import "std_msgs/header.proto";
+import "sensor_msgs/navsatstatus.proto";
+
+package pb;
+
+message NavSatFix
+{
+  Header       header = 1;
+  NavSatStatus status = 2;
+}
