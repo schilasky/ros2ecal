@@ -43,9 +43,9 @@ private:
     msg_nav_.Clear();
 
     // header
-    auto header = msg_nav_.mutable_header();
+    //auto header = msg_nav_.mutable_header();
 
-    msg_nav_.mutable_status()->set_status(static_cast<google::protobuf::uint32>(msg->status.status));
+    //msg_nav_.mutable_status()->set_status(static_cast<google::protobuf::uint32>(msg->status.status));
 
     // send it to eCAL
     pub_nav_.Send(msg_nav_);
