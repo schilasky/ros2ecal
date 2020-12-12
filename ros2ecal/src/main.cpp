@@ -34,6 +34,10 @@ public:
     // initialize pub/sub for <sensor_msgs::msg::NavSatFix>
     pub_nav_ = eCAL::protobuf::CPublisher<pb::NavSatFix>("navsatfix");
     sub_nav_ = this->create_subscription<sensor_msgs::msg::NavSatFix>("navsatfix", 10, std::bind(&GatewayNode::navsatfix_cb, this, std::placeholders::_1));
+
+    // initialize pub/sub for <sensor_msgs::msg::Temperature>
+    pub_tmp_ = eCAL::protobuf::CPublisher<pb::Temperature>("temperature");
+    sub_tmp_ = this->create_subscription<sensor_msgs::msg::Temperature>("temperature", 10, std::bind(&GatewayNode::temperature_cb, this, std::placeholders::_1));
   }
 
 private:
@@ -84,9 +88,34 @@ private:
     pub_nav_.Send(msg_nav_);
   }
 
-  rclcpp::Subscription<sensor_msgs::msg::NavSatFix>::SharedPtr  sub_nav_;
-  pb::NavSatFix                                                 msg_nav_;
-  eCAL::protobuf::CPublisher<pb::NavSatFix>                     pub_nav_;
+  void temperature_cb(const sensor_msgs::msg::Temperature::SharedPtr msg) //-V801
+  {
+    // clear proto message
+    msg_tmp_.Clear();
+
+    // header
+    auto header = msg_nav_.mutable_header();
+    header->mutable_stamp()->set_sec(msg->header.stamp.sec);
+    header->mutable_stamp()->set_nanosec(msg->header.stamp.nanosec);
+    header->set_frame_id(msg->header.frame_id);
+
+    // temperature
+    msg_tmp_.set_temperature(msg->temperature);
+
+    // variance
+    msg_tmp_.set_variance(msg->variance);
+
+    // send it to eCAL
+    pub_tmp_.Send(msg_tmp_);
+  }
+
+  rclcpp::Subscription<sensor_msgs::msg::NavSatFix>::SharedPtr    sub_nav_;
+  pb::NavSatFix                                                   msg_nav_;
+  eCAL::protobuf::CPublisher<pb::NavSatFix>                       pub_nav_;
+
+  rclcpp::Subscription<sensor_msgs::msg::Temperature>::SharedPtr  sub_tmp_;
+  pb::Temperature                                                 msg_tmp_;
+  eCAL::protobuf::CPublisher<pb::Temperature>                     pub_tmp_;
 };
 
 
