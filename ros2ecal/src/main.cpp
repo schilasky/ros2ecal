@@ -43,9 +43,42 @@ private:
     msg_nav_.Clear();
 
     // header
-    //auto header = msg_nav_.mutable_header();
+    auto header = msg_nav_.mutable_header();
+    header->mutable_stamp()->set_sec(msg->header.stamp.sec);
+    header->mutable_stamp()->set_nanosec(msg->header.stamp.nanosec);
+    header->set_frame_id(msg->header.frame_id);
 
-    //msg_nav_.mutable_status()->set_status(static_cast<google::protobuf::uint32>(msg->status.status));
+    // status
+    switch (msg->status.status)
+    {
+    case sensor_msgs::msg::NavSatStatus::STATUS_FIX:       // unaugmented fix
+      msg_nav_.mutable_status()->set_status(pb::NavSatStatus::STATUS_FIX);
+      break;
+    case sensor_msgs::msg::NavSatStatus::STATUS_NO_FIX:    // unable to fix position
+      msg_nav_.mutable_status()->set_status(pb::NavSatStatus::STATUS_NO_FIX);
+      break;
+    case sensor_msgs::msg::NavSatStatus::STATUS_SBAS_FIX:  // with satellite-based augmentation
+      msg_nav_.mutable_status()->set_status(pb::NavSatStatus::STATUS_SBAS_FIX);
+      break;
+    case sensor_msgs::msg::NavSatStatus::STATUS_GBAS_FIX:  // with ground-based augmentation
+      msg_nav_.mutable_status()->set_status(pb::NavSatStatus::STATUS_GBAS_FIX);
+      break;
+
+      // latitude
+      msg_nav_.set_latitude(msg->latitude);
+
+      // longitude
+      msg_nav_.set_longitude(msg->longitude);
+
+      // altitude
+      msg_nav_.set_altitude(msg->altitude);
+    }
+
+    // position_covariance[]
+    for (auto it : msg->position_covariance)
+    {
+      msg_nav_.add_position_covariance(it);
+    }
 
     // send it to eCAL
     pub_nav_.Send(msg_nav_);
