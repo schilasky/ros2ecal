@@ -29,14 +29,14 @@
 class GatewayNode : public rclcpp::Node
 {
 public:
-  GatewayNode() : Node("Ros2eCAL")
+  GatewayNode() : Node("ros2ecal")
   {
-    // initialize pub/sub <sensor_msgs::msg::NavSatFix>
-    pub_nav_ = eCAL::protobuf::CPublisher<pb::NavSatFix>("navsatfix");
+    // pub <pb::NavSatFix> / sub <sensor_msgs::msg::NavSatFix>
+    pub_nav_ = eCAL::protobuf::CPublisher<pb::NavSatFix>("navsatfix_ecal");
     sub_nav_ = this->create_subscription<sensor_msgs::msg::NavSatFix>("navsatfix", 10, std::bind(&GatewayNode::navsatfix_cb, this, std::placeholders::_1));
 
-    // initialize pub/sub <sensor_msgs::msg::Temperature>
-    pub_tmp_ = eCAL::protobuf::CPublisher<pb::Temperature>("temperature");
+    // pub <pb::Temperature> /sub <sensor_msgs::msg::Temperature>
+    pub_tmp_ = eCAL::protobuf::CPublisher<pb::Temperature>("temperature_ecal");
     sub_tmp_ = this->create_subscription<sensor_msgs::msg::Temperature>("temperature", 10, std::bind(&GatewayNode::temperature_cb, this, std::placeholders::_1));
   }
 
@@ -79,10 +79,7 @@ private:
     msg_nav_.set_altitude(msg->altitude);
 
     // position_covariance[]
-    for (auto it : msg->position_covariance)
-    {
-      msg_nav_.add_position_covariance(it);
-    }
+    std::copy(msg->position_covariance.begin(), msg->position_covariance.end(), msg_nav_.mutable_position_covariance()->begin());
 
     // send it to eCAL
     pub_nav_.Send(msg_nav_);
@@ -109,22 +106,22 @@ private:
     pub_tmp_.Send(msg_tmp_);
   }
 
-  // pub/sub/msg <sensor_msgs::msg::NavSatFix>
-  rclcpp::Subscription<sensor_msgs::msg::NavSatFix>::SharedPtr    sub_nav_;
+  // pub <pb::NavSatFix> / sub <sensor_msgs::msg::NavSatFix>
   eCAL::protobuf::CPublisher<pb::NavSatFix>                       pub_nav_;
   pb::NavSatFix                                                   msg_nav_;
+  rclcpp::Subscription<sensor_msgs::msg::NavSatFix>::SharedPtr    sub_nav_;
 
-  // pub/sub/msg <sensor_msgs::msg::Temperature>
-  rclcpp::Subscription<sensor_msgs::msg::Temperature>::SharedPtr  sub_tmp_;
+  // pub <pb::Temperature> / sub <sensor_msgs::msg::Temperature>
   eCAL::protobuf::CPublisher<pb::Temperature>                     pub_tmp_;
   pb::Temperature                                                 msg_tmp_;
+  rclcpp::Subscription<sensor_msgs::msg::Temperature>::SharedPtr  sub_tmp_;
 };
 
 
 int main(int argc, char* argv[])
 {
   // initialize eCAL and set process state
-  eCAL::Initialize(argc, argv, "Ros2eCAL");
+  eCAL::Initialize(argc, argv, "ros2ecal");
   eCAL::Process::SetState(proc_sev_healthy, proc_sev_level1, "I'm fine ..");
 
   // initialize ROS node
