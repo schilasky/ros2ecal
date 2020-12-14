@@ -40,9 +40,4 @@ message NavSatFix
   //
   // Beware: this coordinate system exhibits singularities at the poles.
   repeated double position_covariance = 6;
-
-
-
-
-
 }
