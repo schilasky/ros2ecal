@@ -31,11 +31,11 @@ class GatewayNode : public rclcpp::Node
 public:
   GatewayNode() : Node("Ros2eCAL")
   {
-    // initialize pub/sub for <sensor_msgs::msg::NavSatFix>
+    // initialize pub/sub <sensor_msgs::msg::NavSatFix>
     pub_nav_ = eCAL::protobuf::CPublisher<pb::NavSatFix>("navsatfix");
     sub_nav_ = this->create_subscription<sensor_msgs::msg::NavSatFix>("navsatfix", 10, std::bind(&GatewayNode::navsatfix_cb, this, std::placeholders::_1));
 
-    // initialize pub/sub for <sensor_msgs::msg::Temperature>
+    // initialize pub/sub <sensor_msgs::msg::Temperature>
     pub_tmp_ = eCAL::protobuf::CPublisher<pb::Temperature>("temperature");
     sub_tmp_ = this->create_subscription<sensor_msgs::msg::Temperature>("temperature", 10, std::bind(&GatewayNode::temperature_cb, this, std::placeholders::_1));
   }
@@ -67,16 +67,16 @@ private:
     case sensor_msgs::msg::NavSatStatus::STATUS_GBAS_FIX:  // with ground-based augmentation
       msg_nav_.mutable_status()->set_status(pb::NavSatStatus::STATUS_GBAS_FIX);
       break;
-
-      // latitude
-      msg_nav_.set_latitude(msg->latitude);
-
-      // longitude
-      msg_nav_.set_longitude(msg->longitude);
-
-      // altitude
-      msg_nav_.set_altitude(msg->altitude);
     }
+
+    // latitude
+    msg_nav_.set_latitude(msg->latitude);
+
+    // longitude
+    msg_nav_.set_longitude(msg->longitude);
+
+    // altitude
+    msg_nav_.set_altitude(msg->altitude);
 
     // position_covariance[]
     for (auto it : msg->position_covariance)
@@ -109,13 +109,15 @@ private:
     pub_tmp_.Send(msg_tmp_);
   }
 
+  // pub/sub/msg <sensor_msgs::msg::NavSatFix>
   rclcpp::Subscription<sensor_msgs::msg::NavSatFix>::SharedPtr    sub_nav_;
-  pb::NavSatFix                                                   msg_nav_;
   eCAL::protobuf::CPublisher<pb::NavSatFix>                       pub_nav_;
+  pb::NavSatFix                                                   msg_nav_;
 
+  // pub/sub/msg <sensor_msgs::msg::Temperature>
   rclcpp::Subscription<sensor_msgs::msg::Temperature>::SharedPtr  sub_tmp_;
-  pb::Temperature                                                 msg_tmp_;
   eCAL::protobuf::CPublisher<pb::Temperature>                     pub_tmp_;
+  pb::Temperature                                                 msg_tmp_;
 };
 
 
