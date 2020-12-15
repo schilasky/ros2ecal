@@ -7,7 +7,7 @@ using namespace std::chrono_literals;
 class NavSatFixPublisher : public rclcpp::Node
 {
 public:
-  NavSatFixPublisher() : Node("pub_navsatfix")
+  NavSatFixPublisher() : Node("pub_navsatfix_ros")
   {
     pub_ = this->create_publisher<sensor_msgs::msg::NavSatFix>("navsatfix", 10);
     msg_ = sensor_msgs::msg::NavSatFix();
@@ -28,7 +28,7 @@ public:
     // header
     msg.header.stamp.sec     = 1;
     msg.header.stamp.nanosec = 2;
-    msg.header.frame_id      = 3;
+    msg.header.frame_id      = "id";
 
     // status
     msg.status.status = sensor_msgs::msg::NavSatStatus::STATUS_FIX;
@@ -43,7 +43,7 @@ public:
     msg.altitude  = 0.3;
 
     // position_covariance[]
-    msg.position_covariance = { 1.0, 2.0, 3.0, 4.0, 5.0 };
+    msg.position_covariance = { 1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0 };
   }
 
 private:

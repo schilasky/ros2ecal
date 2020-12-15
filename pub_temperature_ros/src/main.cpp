@@ -7,7 +7,7 @@ using namespace std::chrono_literals;
 class TemperaturePublisher : public rclcpp::Node
 {
 public:
-  TemperaturePublisher() : Node("pub_temperature")
+  TemperaturePublisher() : Node("pub_temperature_ros")
   {
     pub_ = this->create_publisher<sensor_msgs::msg::Temperature>("temperature", 10);
     msg_ = sensor_msgs::msg::Temperature();

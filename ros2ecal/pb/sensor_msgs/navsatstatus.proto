@@ -2,7 +2,7 @@
 
 syntax = "proto3";
 
-package pb;
+package pb.sensor_msgs;
 
 message NavSatStatus
 {

@@ -32,11 +32,11 @@ public:
   GatewayNode() : Node("ros2ecal")
   {
     // pub <pb::NavSatFix> / sub <sensor_msgs::msg::NavSatFix>
-    pub_nav_ = eCAL::protobuf::CPublisher<pb::NavSatFix>("navsatfix_ecal");
+    pub_nav_ = eCAL::protobuf::CPublisher<pb::sensor_msgs::NavSatFix>("navsatfix_ecal");
     sub_nav_ = this->create_subscription<sensor_msgs::msg::NavSatFix>("navsatfix", 10, std::bind(&GatewayNode::navsatfix_cb, this, std::placeholders::_1));
 
     // pub <pb::Temperature> /sub <sensor_msgs::msg::Temperature>
-    pub_tmp_ = eCAL::protobuf::CPublisher<pb::Temperature>("temperature_ecal");
+    pub_tmp_ = eCAL::protobuf::CPublisher<pb::sensor_msgs::Temperature>("temperature_ecal");
     sub_tmp_ = this->create_subscription<sensor_msgs::msg::Temperature>("temperature", 10, std::bind(&GatewayNode::temperature_cb, this, std::placeholders::_1));
   }
 
@@ -56,16 +56,16 @@ private:
     switch (msg->status.status)
     {
     case sensor_msgs::msg::NavSatStatus::STATUS_FIX:       // unaugmented fix
-      msg_nav_.mutable_status()->set_status(pb::NavSatStatus::STATUS_FIX);
+      msg_nav_.mutable_status()->set_status(pb::sensor_msgs::NavSatStatus::STATUS_FIX);
       break;
     case sensor_msgs::msg::NavSatStatus::STATUS_NO_FIX:    // unable to fix position
-      msg_nav_.mutable_status()->set_status(pb::NavSatStatus::STATUS_NO_FIX);
+      msg_nav_.mutable_status()->set_status(pb::sensor_msgs::NavSatStatus::STATUS_NO_FIX);
       break;
     case sensor_msgs::msg::NavSatStatus::STATUS_SBAS_FIX:  // with satellite-based augmentation
-      msg_nav_.mutable_status()->set_status(pb::NavSatStatus::STATUS_SBAS_FIX);
+      msg_nav_.mutable_status()->set_status(pb::sensor_msgs::NavSatStatus::STATUS_SBAS_FIX);
       break;
     case sensor_msgs::msg::NavSatStatus::STATUS_GBAS_FIX:  // with ground-based augmentation
-      msg_nav_.mutable_status()->set_status(pb::NavSatStatus::STATUS_GBAS_FIX);
+      msg_nav_.mutable_status()->set_status(pb::sensor_msgs::NavSatStatus::STATUS_GBAS_FIX);
       break;
     }
 
@@ -79,7 +79,10 @@ private:
     msg_nav_.set_altitude(msg->altitude);
 
     // position_covariance[]
-    std::copy(msg->position_covariance.begin(), msg->position_covariance.end(), msg_nav_.mutable_position_covariance()->begin());
+    for (auto it : msg->position_covariance)
+    {
+      msg_nav_.add_position_covariance(it);
+    }
 
     // send it to eCAL
     pub_nav_.Send(msg_nav_);
@@ -107,13 +110,13 @@ private:
   }
 
   // pub <pb::NavSatFix> / sub <sensor_msgs::msg::NavSatFix>
-  eCAL::protobuf::CPublisher<pb::NavSatFix>                       pub_nav_;
-  pb::NavSatFix                                                   msg_nav_;
+  eCAL::protobuf::CPublisher<pb::sensor_msgs::NavSatFix>          pub_nav_;
+  pb::sensor_msgs::NavSatFix                                      msg_nav_;
   rclcpp::Subscription<sensor_msgs::msg::NavSatFix>::SharedPtr    sub_nav_;
 
   // pub <pb::Temperature> / sub <sensor_msgs::msg::Temperature>
-  eCAL::protobuf::CPublisher<pb::Temperature>                     pub_tmp_;
-  pb::Temperature                                                 msg_tmp_;
+  eCAL::protobuf::CPublisher<pb::sensor_msgs::Temperature>        pub_tmp_;
+  pb::sensor_msgs::Temperature                                    msg_tmp_;
   rclcpp::Subscription<sensor_msgs::msg::Temperature>::SharedPtr  sub_tmp_;
 };
 
