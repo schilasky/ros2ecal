@@ -20,15 +20,15 @@ public:
         this->pub_->publish(this->msg_);
       };
 
-    timer_ = this->create_wall_timer(100ms, timer_callback);
+    auto timer_ = this->create_wall_timer(100ms, timer_callback);
   }
 
-  void FillMessage(sensor_msgs::msg::Temperature& msg)
+  static void FillMessage(sensor_msgs::msg::Temperature& msg)
   {
     // header
     msg.header.stamp.sec     = 1;
     msg.header.stamp.nanosec = 2;
-    msg.header.frame_id      = 3;
+    msg.header.frame_id      = "id";
 
     // temperature
     msg.temperature = 42.0;
@@ -38,7 +38,6 @@ public:
   }
 
 private:
-  rclcpp::TimerBase::SharedPtr                                 timer_;
   rclcpp::Publisher<sensor_msgs::msg::Temperature>::SharedPtr  pub_;
   sensor_msgs::msg::Temperature                                msg_;
 };

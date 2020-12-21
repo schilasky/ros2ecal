@@ -20,10 +20,10 @@ public:
         this->pub_->publish(this->msg_);
       };
 
-    timer_ = this->create_wall_timer(100ms, timer_callback);
+    auto timer_ = this->create_wall_timer(100ms, timer_callback);
   }
 
-  void FillMessage(sensor_msgs::msg::NavSatFix& msg)
+  static void FillMessage(sensor_msgs::msg::NavSatFix& msg)
   {
     // header
     msg.header.stamp.sec     = 1;
@@ -47,7 +47,6 @@ public:
   }
 
 private:
-  rclcpp::TimerBase::SharedPtr                               timer_;
   rclcpp::Publisher<sensor_msgs::msg::NavSatFix>::SharedPtr  pub_;
   sensor_msgs::msg::NavSatFix                                msg_;
 };
